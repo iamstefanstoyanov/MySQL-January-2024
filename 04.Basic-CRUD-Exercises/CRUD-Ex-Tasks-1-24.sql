@@ -78,3 +78,27 @@ SELECT `first_name`,`last_name`,`hire_date`
 FROM `employees`
 ORDER BY `hire_date` DESC
 LIMIT 7;
+
+UPDATE `employees`
+SET `salary` = `salary` * 1.12
+WHERE `department_id` IN (1, 2, 4, 11);
+
+SELECT `salary` FROM `employees`;
+
+SELECT `peak_name` FROM `peaks` ORDER BY `peak_name` ASC;
+
+SELECT `country_name`,`population` 
+FROM `countries` 
+WHERE `continent_code` = 'EU'
+ORDER BY `population` DESC,
+`country_name` ASC
+LIMIT 30;
+
+SELECT `country_name`, `country_code`, 
+IF(`currency_code` = 'EUR', 'Euro', 'Not Euro') AS currency
+FROM `countries`
+ORDER BY `country_name`;
+
+SELECT `name`
+FROM `characters`
+ORDER BY `name` ASC;
