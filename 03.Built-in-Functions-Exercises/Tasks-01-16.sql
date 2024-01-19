@@ -58,3 +58,45 @@ FROM `peaks`, `rivers`
 WHERE RIGHT(`peak_name`, 1) = LEFT(`river_name`, 1)
 ORDER BY `mix`;
 
+SELECT `name`, date_format(`start`, '%Y-%m-%d') AS `start` 
+FROM `games`
+WHERE YEAR(`start`) IN (2011, 2012)
+ORDER BY `start`, `name`
+LIMIT 50;
+
+SELECT `user_name`,
+    SUBSTRING(`email` FROM POSITION('@' IN `email`) + 1) AS `email_provider`
+FROM 
+    `users`
+ORDER BY 
+    `email_provider`, `user_name`;
+    
+SELECT `user_name`,`ip_address`
+FROM 
+    `users`
+WHERE 
+    `ip_address` LIKE '___.1%.%.___'
+ORDER BY 
+    `user_name`;
+
+SELECT 
+    `name`,
+    CASE
+        WHEN HOUR(`start`) BETWEEN 0 AND 11 THEN 'Morning'
+        WHEN HOUR(`start`) BETWEEN 12 AND 17 THEN 'Afternoon'
+        WHEN HOUR(`start`) BETWEEN 18 AND 23 THEN 'Evening'
+    END AS `Part of the Day`,
+    CASE
+		WHEN `duration` <= 3 THEN 'Extra Short'
+        WHEN `duration` BETWEEN 3 AND 6 THEN 'Short'
+        WHEN `duration` BETWEEN 6 AND 10 THEN 'Long'
+        ELSE 'Extra Long'
+	END AS `Duration`
+FROM 
+    `games`;
+    
+SELECT `product_name`, `order_date`,
+ADDDATE(`order_date`, INTERVAL 3 DAY) 
+AS `pay_due`, ADDDATE(`order_date`, INTERVAL 1 MONTH) 
+AS `deliver_due` 
+FROM orders;
