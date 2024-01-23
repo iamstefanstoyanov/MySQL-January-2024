@@ -69,4 +69,73 @@ WHERE `department_id` IN (2, 5, 7) AND DATE(`hire_date`) > '2000-01-01'
 GROUP BY `department_id`
 ORDER BY `department_id`;
 
+SELECT `department_id`, IF (`department_id` = 1, AVG(`salary` + 5000), AVG(`salary`)) AS `avg_salary`
+FROM `employees`
+WHERE `salary` > 30000 AND `manager_id` != 42
+GROUP BY `department_id`
+ORDER BY `department_id`;
 
+SELECT `department_id`, MAX(`salary`) AS `max_salary`
+FROM `employees`
+GROUP BY `department_id`
+HAVING `max_salary` NOT BETWEEN 30000 AND 70000
+ORDER BY `department_id`;
+
+SELECT COUNT(*)
+FROM `employees`
+WHERE `manager_id` IS NULL;
+
+SELECT 
+    `department_id`,
+    (SELECT DISTINCT
+            `salary`
+        FROM
+            `employees` AS `e2`
+        WHERE
+            `e1`.`department_id` = `e2`.`department_id`
+        ORDER BY `salary` DESC
+        LIMIT 2 , 1) AS `third_highest_salary`
+FROM
+    `employees` AS `e1`
+GROUP BY `department_id`
+HAVING `third_highest_salary` IS NOT NULL
+ORDER BY `department_id`;
+
+SELECT 
+    `first_name`, `last_name`, `department_id`
+FROM
+    `employees` AS `e1`
+WHERE
+    `e1`.`salary` > (SELECT DISTINCT
+            AVG(`salary`)
+        FROM
+            `employees` AS `e2`
+        WHERE
+            `e1`.`department_id` = `e2`.`department_id`)
+ORDER BY `department_id` , `employee_id`
+LIMIT 10;
+
+SELECT `department_id`, SUM(`salary`) AS `total_salary`
+FROM `employees`
+GROUP BY `department_id`
+ORDER BY `department_id`;
+
+SELECT first_name, last_name, department_id
+FROM (
+    SELECT e.first_name, e.last_name, e.department_id,
+           ROW_NUMBER() OVER (ORDER BY e.department_id, e.employee_id) AS row_num
+    FROM employees e
+    JOIN (
+        SELECT department_id, AVG(salary) AS avg_salary
+        FROM employees
+        GROUP BY department_id
+    ) d_avg ON e.department_id = d_avg.department_id
+    WHERE e.salary > d_avg.avg_salary
+    ORDER BY e.department_id, e.employee_id
+) AS subquery
+WHERE row_num <= 10;
+
+SELECT `department_id`, SUM(`salary`) AS `total_salary`
+FROM `employees`
+GROUP BY `department_id`
+ORDER BY `department_id`;
