@@ -79,3 +79,76 @@ LIMIT 5;
 SELECT MIN(q.salary) AS min_average_salary
 FROM (SELECT AVG(salary) AS salary FROM employees GROUP BY department_id) AS q;
 
+SELECT country_code, mountain_range, peak_name, elevation 
+FROM mountains_countries mc 
+JOIN mountains m 
+ON mc.mountain_id = m.id
+JOIN peaks  p 
+ON m.id = p.mountain_id
+WHERE country_code = 'BG' 
+AND elevation > 2835
+ORDER BY elevation DESC;
+
+SELECT country_code, COUNT(mountain_range) AS count
+FROM mountains_countries  mc 
+JOIN mountains  m ON mc.mountain_id = m.id
+WHERE country_code IN ('BG', 'RU', 'US')
+GROUP BY country_code
+ORDER BY count DESC;
+
+SELECT country_name, r.river_name
+FROM countries c
+LEFT JOIN countries_rivers cr 
+ON c.country_code = cr.country_code
+LEFT JOIN rivers  r 
+ON cr.river_id = r.id
+WHERE continent_code = 'AF'
+ORDER BY country_name
+LIMIT 5;
+
+SELECT 
+            currency_code
+        FROM
+            countries AS c2
+        WHERE
+           c2.continent_code = 'AF'
+        GROUP BY currency_code
+        ORDER BY COUNT(currency_code) DESC
+        LIMIT 1;
+
+SELECT 
+    continent_code, currency_code, COUNT(*) AS cnt
+FROM
+    countries AS c
+GROUP BY c.continent_code , c.currency_code
+HAVING cnt > 1
+    AND cnt = (SELECT 
+        COUNT(*)
+    FROM
+        countries c2
+    WHERE
+        c.continent_code = c2.continent_code
+    GROUP BY currency_code
+    ORDER BY COUNT(currency_code) DESC
+    LIMIT 1)
+ORDER BY c.continent_code , c.currency_code;
+
+SELECT COUNT(*)
+FROM countries c
+WHERE country_code NOT IN (SELECT country_code FROM mountains_countries);
+
+SELECT country_name, MAX(elevation) AS highest_peak_elevation, MAX(length) AS longest_river_length
+FROM countries c 
+	LEFT JOIN countries_rivers cr 
+		ON c.country_code = cr.country_code
+	LEFT JOIN rivers r 
+		ON cr.river_id = r.id
+	LEFT JOIN mountains_countries mc 
+		ON c.country_code = mc.country_code
+	LEFT JOIN mountains m 
+		ON mc.mountain_id = m.id
+	LEFT JOIN peaks p 
+		ON m.id = p.mountain_id
+GROUP BY country_name
+ORDER BY highest_peak_elevation DESC, longest_river_length DESC, country_name
+LIMIT 5;
