@@ -104,3 +104,44 @@ SELECT
 FROM flights
 ORDER BY flight_code DESC;
 
+DELIMITER //
+
+CREATE FUNCTION `udf_count_flights_from_country`(`country` VARCHAR(50)) 
+RETURNS INTEGER
+DETERMINISTIC
+BEGIN
+    DECLARE flights_count INT;
+
+    SELECT COUNT(*) INTO flights_count
+    FROM flights f
+    JOIN countries c ON f.departure_country = c.id
+    WHERE c.name = country;
+
+    RETURN flights_count;
+END //
+
+DELIMITER ;
+
+SELECT udf_count_flights_from_country('Brazil') AS 'flights_count';
+
+DELIMITER //
+
+CREATE PROCEDURE udp_delay_flight(`code` VARCHAR(50))
+BEGIN
+    DECLARE has_delay_before INT;
+    DECLARE departure_before DATETIME;
+    DECLARE departure_after DATETIME;
+
+    SELECT has_delay, departure INTO has_delay_before, departure_before
+    FROM flights
+    WHERE flight_code = `code`;
+
+    UPDATE flights
+    SET has_delay = 1, departure = departure_before + INTERVAL 30 MINUTE
+    WHERE flight_code = `code`;
+    
+END //
+
+DELIMITER ;
+
+CALL udp_delay_flight('ZP-782');
